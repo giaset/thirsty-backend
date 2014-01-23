@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "express": "3.4.8"
+    "express": "3.4.8",
+    "instagram-node": "0.1.14"
   },
   "gitHead": "adb9ce74f31a71d36d6ae3836b7d0d74d24dbd9e",
   "main": "app.js",

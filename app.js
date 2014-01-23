@@ -14,8 +14,8 @@ app.get('/', function(req, res){
 		'</head>'+
 		'<body>'+
 			'<form action="/thirsty">'+
-				'Liker: <input type="text" name="liker">'+
-				'Likee: <input type="text" name="likee">'+
+				'Liker: <input type="text" name="liker"><br>'+
+				'Likee: <input type="text" name="likee"><br>'+
 				'<input type="submit" value="Submit" />'+
 			'</form>'+
 		'</body>'+

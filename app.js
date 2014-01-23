@@ -48,7 +48,7 @@ app.get('/thirsty', function(req, res){
 				insta.likes(image.id, function(err, likes, limit) {
 					for (var i = 0; i < likes.length; i++) {
 						if (likes[i].id == liker_id) {
-							onComplete(image.images.standard_resolution.url);
+							onComplete(image);
 						}
 					}
 				});
@@ -58,8 +58,10 @@ app.get('/thirsty', function(req, res){
 				var image_html = '';
 				var getImages = function(err, images, pagination, limit) {
 					for (var i = 0; i < images.length; i++) {
-						getLikesForImage(images[i], function(image_url) {
-							var image_tag = '<img src=\"'+image_url+'\"/>'
+						getLikesForImage(images[i], function(image) {
+							console.log(image);
+							var thumbnail_url = image.images.standard_resolution.url;
+							var image_tag = '<a href=\"'+image.link+'\"><img src=\"'+thumbnail_url+'\"/></a>';
 							console.log(image_tag);
 							image_html += image_tag;
 						});

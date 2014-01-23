@@ -1,9 +1,24 @@
 {
-	"name": "mean-stack",
-	"description": "MEAN stack lab",
-	"version" : "0.0.1",
-	"private": true,
-	"dependencies": {
-		"express": "3.4.8"
-	}
+  "name": "thirsty",
+  "description": "Is She Thirsty? Web app",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "express": "3.4.8"
+  },
+  "gitHead": "adb9ce74f31a71d36d6ae3836b7d0d74d24dbd9e",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giaset/thirsty.git"
+  },
+  "author": "Gianni Settino",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/giaset/thirsty/issues"
+  }
 }

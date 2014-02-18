@@ -79,7 +79,7 @@ app.get('/thirsty', function(req, res){
 			};
 
 			computeThirstWithCallback(function(image_html) {
-				res.send(body, '<h1>Photos of ' + likee_object.full_name + ' liked by ' + liker_object.full_name + '</h1>' + image_html);
+				//res.send(body, '<h1>Photos of ' + likee_object.full_name + ' liked by ' + liker_object.full_name + '</h1>' + image_html);
 			});
 		});
 	});

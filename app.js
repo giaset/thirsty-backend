@@ -2,12 +2,16 @@ var express = require('express');
 var logfmt = require('logfmt');
 var app = express();
 
-app.use(logfmt.requestLogger());
-
 var insta = require('instagram-node').instagram();
-
 insta.use({ client_id: '49c392e9b0d545da846d722a86670579',
 			client_secret: 'e51d7694d016424a81a08f74a285805f' });
+
+app.use(logfmt.requestLogger());
+
+app.all("*", function(req, res, next) {
+	res.writeHead(200, { "Content-Type": "text/html" });
+	next();
+});
 
 app.get('/', function(req, res){
 	var body = '<html>'+
@@ -25,67 +29,81 @@ app.get('/', function(req, res){
 		'</html>';
 
 
-	res.send(body);
+	res.end(body);
 });
 
 app.get('/thirsty', function(req, res){
-	var body = '<html>'+
+	var html_start = '<html>'+
 		'<head>'+
 			'<meta http-equiv-"Content-Type" content="text/html; '+
 			'charset=UTF-8" />'+
 		'</head>'+
-		'<body>'+
-			'%s'
-		'</body>'+
-		'</html>';
+		'<body>';
 
-	var liker = req.query.liker;
-	var likee = req.query.likee;
+	res.write(html_start);
 
-	insta.user_search(liker, function(err, users, limit) {
-		var liker_object = users[0];
-		var liker_id = liker_object.id;
-		insta.user_search(likee, function(err, users, limit) {
-			var likee_object = users[0];
-			var likee_id = likee_object.id;
+	/* DEFINE OUR FUNCTIONS */
 
-			var getLikesForImage = function(image, onComplete) {
-				insta.likes(image.id, function(err, likes, limit) {
-					for (var i = 0; i < likes.length; i++) {
-						if (likes[i].id == liker_id) {
-							onComplete(image);
-						}
-					}
-				});
+	var getUser = function(username, onComplete) {
+		insta.user_search(username, function(err, users, limit) {
+			onComplete(users[0]);
+		});
+	};
+
+	var getUserDisplayName = function(user) {
+		return (user.full_name == '') ? user.username : user.full_name;
+	};
+
+	var handleImage = function(image, user, onComplete) {
+		insta.likes(image.id, function(err, likes, limit) {
+			for (var i = 0; i < likes.length; i++) {
+				if (likes[i].id == user.id) {
+					var thumbnail_url = image.images.standard_resolution.url;
+					var image_tag = '<a href=\"'+image.link+'\"><img src=\"'+thumbnail_url+'\"/></a>';
+					res.write(image_tag);
+					break;
+				}
+			}
+			onComplete();
+		});
+	};
+
+	var handleAllImages = function(liker, likee) {
+
+		var pageHandler = function(err, images, pagination, limit) {
+			var i = 0;
+
+			var handleNextImage = function() {
+				if (i < images.length) {
+					handleImage(images[i++], liker, handleNextImage);
+				} else if (pagination.next) {
+					pagination.next(pageHandler);
+				} else {
+					res.end();
+				}
 			};
 
-			var computeThirstWithCallback = function(onComplete) {
-				var image_html = '';
-				var getImages = function(err, images, pagination, limit) {
-					for (var i = 0; i < images.length; i++) {
-						getLikesForImage(images[i], function(image) {
-							var thumbnail_url = image.images.standard_resolution.url;
-							var image_tag = '<a href=\"'+image.link+'\"><img src=\"'+thumbnail_url+'\"/></a>';
-							console.log(image_tag);
-							image_html += image_tag;
-						});
-					}
+			handleNextImage();
+		};
 
-					if(pagination.next) {
-						pagination.next(getImages);
-					} else {
-						onComplete(image_html);
-					}
-				};
+		insta.user_media_recent(likee.id, pageHandler);
+	};
 
-				insta.user_media_recent(likee_id, getImages);
-			};
+	/* NOW CALL THEM */
 
-			computeThirstWithCallback(function(image_html) {
-				res.send(body, '<h1>Photos of ' + likee_object.full_name + ' liked by ' + liker_object.full_name + '</h1>' + image_html);
-			});
+	// First get the liker
+	getUser(req.query.liker, function(user) {
+		var liker = user;
+		// Next get the likee
+		getUser(req.query.likee, function(user) {
+			var likee = user;
+			// Now that we have the users, write the page header
+			res.write('<h1>Photos of ' + getUserDisplayName(likee) + ' liked by ' + getUserDisplayName(liker) + '</h1>');
+			// And write images one by one as matches are found
+			handleAllImages(liker, likee);
 		});
 	});
+
 });
 
 var port = Number(process.env.PORT || 5000);

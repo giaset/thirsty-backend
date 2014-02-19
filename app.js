@@ -8,11 +8,6 @@ insta.use({ client_id: '49c392e9b0d545da846d722a86670579',
 
 app.use(logfmt.requestLogger());
 
-app.all("*", function(req, res, next) {
-	res.writeHead(200, { "Content-Type": "text/html" });
-	next();
-});
-
 app.get('/', function(req, res){
 	var body = '<html>'+
 		'<head>'+
@@ -29,10 +24,11 @@ app.get('/', function(req, res){
 		'</html>';
 
 
-	res.end(body);
+	res.send(body);
 });
 
 app.get('/thirsty', function(req, res){
+	res.writeHead(200, { "Content-Type": "text/html" });
 	var html_start = '<html>'+
 		'<head>'+
 			'<meta http-equiv-"Content-Type" content="text/html; '+
